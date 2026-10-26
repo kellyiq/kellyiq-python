@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "kellyiq"
-version = "0.0.1"
+version = "0.0.2"
 description = "Size a whole sports betting slate as one portfolio: a client for the KellyIQ API."
 readme = "README.md"
 requires-python = ">=3.9"
