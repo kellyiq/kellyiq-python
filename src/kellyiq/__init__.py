@@ -9,7 +9,7 @@ A small client for the KellyIQ API (https://www.kellyiq.com/developers). No depe
         "bankroll": 1000,
         "picks": [
             {"sport": "baseball_mlb", "team": "Dodgers", "opponent": "Padres",
-             "odds": -145, "opponentOdds": 125, "confidence": "STRONG_EDGE"},
+             "odds": -145, "opponentOdds": 125, "confidence": "MODERATE_EDGE"},
         ],
     })
     for stake in result["allocation"]["stakes"]:
