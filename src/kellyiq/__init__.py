@@ -19,7 +19,40 @@ KellyIQ sizes the bets you choose; it does not choose bets or predict outcomes. 
 calculations, not betting advice.
 """
 
-from ._client import KellyIQ, KellyIQError
+from ._client import KellyIQ
+from ._errors import (
+    APIConnectionError,
+    AuthenticationError,
+    BadRequestError,
+    BurstLimitError,
+    DailyLimitError,
+    KellyIQError,
+    NotFoundError,
+    PermissionDeniedError,
+    RateLimitError,
+    ServerError,
+    ServiceBusyError,
+    SlateNotOptimizableError,
+    UpgradeRequiredError,
+    ValidationError,
+)
+from ._version import __version__
 
-__all__ = ["KellyIQ", "KellyIQError", "__version__"]
-__version__ = "0.0.2"
+__all__ = [
+    "KellyIQ",
+    "KellyIQError",
+    "APIConnectionError",
+    "AuthenticationError",
+    "BadRequestError",
+    "BurstLimitError",
+    "DailyLimitError",
+    "NotFoundError",
+    "PermissionDeniedError",
+    "RateLimitError",
+    "ServerError",
+    "ServiceBusyError",
+    "SlateNotOptimizableError",
+    "UpgradeRequiredError",
+    "ValidationError",
+    "__version__",
+]

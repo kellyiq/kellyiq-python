@@ -44,15 +44,59 @@ included, each with its own daily allowance.
 | `kelly(bets, bankroll=None, fraction=None)` | `POST /v1/kelly` | No |
 
 Responses are the API's JSON as Python dicts; the [API reference](https://www.kellyiq.com/developers/reference/optimize)
-describes every field. Errors raise `KellyIQError` with `status`, `code`, `violations`, `request_id`
-and `retry_after`.
+describes every field.
 
-This is an early release. A fuller SDK (typed results, automatic retries) is on the way; the
-methods above will keep working.
+## Errors
+
+Every error is a `KellyIQError` with `status`, `code`, `message`, `violations`, `request_id`,
+`retry_after`, `required_tier` and `resets_at`. Catch a subclass to handle one case:
+
+| Exception | When |
+|---|---|
+| `ValidationError` | 400: the request has problems; `violations` lists every one (`"picks[2].odds: ..."`) |
+| `AuthenticationError` | 401 `INVALID_API_KEY`: the key is wrong, revoked or missing |
+| `UpgradeRequiredError` | 403: something sent needs a higher plan (`required_tier`), such as your own probabilities on Free |
+| `PermissionDeniedError` | 403: anything else the key may not do, such as `API_NOT_ENABLED` (API access is off) |
+| `SlateNotOptimizableError` | 422: the slate is valid but cannot be sized; `violations` says why |
+| `DailyLimitError` | 429: today's optimizes are used up; try again after `resets_at` |
+| `BurstLimitError` | 429: too many at once (retried for you) |
+| `ServiceBusyError` | 503: server capacity, not your allowance (retried for you) |
+| `ServerError` | 5xx: quote `request_id` to support@kellyiq.com |
+| `APIConnectionError` | no response at all: network, DNS or timeout |
+
+```python
+from kellyiq import KellyIQ, DailyLimitError, ValidationError
+
+try:
+    result = client.optimize(slate)
+except ValidationError as e:
+    print("Fix:", e.violations)
+except DailyLimitError as e:
+    print("No optimizes left until", e.resets_at)
+```
+
+## Retries
+
+`SERVICE_BUSY` and `BURST_LIMIT_EXCEEDED` never count against your allowance, so the client retries
+them for you after the wait the API asks for: up to `max_retries` times (default 2), and only when
+the wait is at most `max_retry_wait` seconds (default 60). A dropped connection is retried for the
+free `GET` calls only, since an optimize that timed out may already have run and counted.
+`DAILY_LIMIT_EXCEEDED` is never retried.
+
+```python
+client = KellyIQ(max_retries=0)   # handle every error yourself
+```
+
+## Examples
+
+- [A notebook](https://github.com/kellyiq/kellyiq-examples/blob/main/python/size-a-slate.ipynb):
+  stakes, the probabilities behind them, and the risk at each Kelly fraction, as tables
+- [Spreadsheet to stakes](https://github.com/kellyiq/kellyiq-examples/blob/main/python/slate_from_csv.py):
+  CSV in, CSV of stakes out
 
 ## More
 
-- [Quickstart](https://www.kellyiq.com/developers/quickstart) and [docs](https://www.kellyiq.com/developers)
+- [Python SDK guide](https://www.kellyiq.com/developers/python), [quickstart](https://www.kellyiq.com/developers/quickstart) and [docs](https://www.kellyiq.com/developers)
 - [Examples and AI-assistant (MCP) configs](https://github.com/kellyiq/kellyiq-examples)
 - Support: support@kellyiq.com
 
